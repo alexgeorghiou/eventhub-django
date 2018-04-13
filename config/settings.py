@@ -15,20 +15,15 @@ from pathlib import Path
 
 import dj_database_url
 from celery.schedules import crontab
-from django.core.management.utils import get_random_secret_key
 
 from .env import env, env_bool, env_int, env_list
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = env_bool("DJANGO_DEBUG", default=False)
-SECRET_KEY = env("DJANGO_SECRET_KEY", default="") or (
-    "dev-insecure-" + get_random_secret_key() if DEBUG else ""
-)
-if not SECRET_KEY:
-    # Stable fallback so `manage.py check` and tests work out of the box; never
-    # used when DJANGO_SECRET_KEY is provided (as it is in docker-compose).
-    SECRET_KEY = "insecure-local-key-change-me"  # noqa: S105
+# The fallback keeps `manage.py check` and the test suite working out of the box.
+# docker-compose and any real deployment must set DJANGO_SECRET_KEY.
+SECRET_KEY = env("DJANGO_SECRET_KEY", default="insecure-local-key-change-me")
 
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[])

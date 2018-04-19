@@ -193,11 +193,12 @@ def cancel_order(order: Order) -> Order:
         raise OrderNotCancellable("Tickets in this order have already been used.")
 
     # Same lock order as purchase_tickets: tier first, then promo code.
-    TicketTier.objects.select_for_update().filter(pk=order.tier_id).update(
+    # UPDATE takes the row lock itself, so no separate SELECT ... FOR UPDATE.
+    TicketTier.objects.filter(pk=order.tier_id).update(
         quantity_sold=F("quantity_sold") - order.quantity
     )
     if order.promo_code_id:
-        PromoCode.objects.select_for_update().filter(pk=order.promo_code_id).update(
+        PromoCode.objects.filter(pk=order.promo_code_id).update(
             times_used=F("times_used") - 1
         )
     order.tickets.update(status=Ticket.Status.CANCELLED)

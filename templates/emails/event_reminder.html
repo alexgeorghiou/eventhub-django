@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en">
+  <body style="font-family: system-ui, sans-serif; color: #212529;">
+    <h2>{{ event.title }} starts soon</h2>
+    <p>Hi {{ ticket.attendee_name }}, see you on
+      <strong>{{ event.starts_at|date:"D j M Y" }} at {{ event.starts_at|date:"H:i" }}</strong>
+      at {{ event.venue }}, {{ event.city }}.</p>
+    <p>Ticket: {{ ticket.tier.name }} ({{ ticket.short_code }})</p>
+    <p><a href="{{ order_url }}">Open your QR ticket</a> and have it ready at the door.</p>
+  </body>
+</html>

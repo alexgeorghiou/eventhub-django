@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <body style="font-family: system-ui, sans-serif; color: #212529;">
+    <h2>You're going to {{ event.title }}!</h2>
+    <p>Hi {{ order.buyer_name }}, thanks for registering.</p>
+    <table cellpadding="4">
+      <tr><td><strong>Order</strong></td><td>{{ order.reference }}</td></tr>
+      <tr><td><strong>Tickets</strong></td><td>{{ order.quantity }} &times; {{ order.tier.name }}</td></tr>
+      <tr><td><strong>Total</strong></td><td>{{ order.total }} {{ order.currency }}</td></tr>
+      <tr><td><strong>When</strong></td><td>{{ event.starts_at|date:"D j M Y, H:i" }}</td></tr>
+      <tr><td><strong>Where</strong></td><td>{{ event.venue }}, {{ event.city }}</td></tr>
+    </table>
+    <p>
+      <a href="{{ order_url }}" style="background:#0d6efd;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;">
+        View your QR tickets
+      </a>
+    </p>
+    <ul>
+      {% for ticket in tickets %}<li>{{ ticket.attendee_name }} &mdash; {{ ticket.short_code }}</li>{% endfor %}
+    </ul>
+  </body>
+</html>

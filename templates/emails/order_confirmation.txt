@@ -1,0 +1,19 @@
+Hi {{ order.buyer_name }},
+
+Thanks for registering for {{ event.title }}!
+
+Order: {{ order.reference }}
+Tickets: {{ order.quantity }} x {{ order.tier.name }}
+Total: {{ order.total }} {{ order.currency }}
+
+When: {{ event.starts_at|date:"D j M Y, H:i" }} - {{ event.ends_at|date:"D j M Y, H:i" }}
+Where: {{ event.venue }}, {{ event.city }}
+
+Your QR tickets are available here:
+{{ order_url }}
+
+Attendees:
+{% for ticket in tickets %}  - {{ ticket.attendee_name }} ({{ ticket.short_code }})
+{% endfor %}
+See you there,
+The {{ event.title }} team

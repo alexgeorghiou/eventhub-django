@@ -32,6 +32,8 @@ class CheckInOutcome:
 
 @transaction.atomic
 def check_in(token: str, event: Event, scanned_by=None) -> CheckInOutcome:
+    if not getattr(scanned_by, "is_authenticated", False):
+        scanned_by = None
     outcome = _evaluate(token, event, scanned_by)
     ScanLog.objects.create(
         event=event, ticket=outcome.ticket, result=outcome.result, scanned_by=scanned_by
@@ -62,6 +64,6 @@ def _evaluate(token: str, event: Event, scanned_by) -> CheckInOutcome:
         return CheckInOutcome(ScanResult.ALREADY_CHECKED_IN, ticket)
 
     ticket.checked_in_at = timezone.now()
-    ticket.checked_in_by = scanned_by if getattr(scanned_by, "is_authenticated", False) else None
+    ticket.checked_in_by = scanned_by
     ticket.save(update_fields=["checked_in_at", "checked_in_by"])
     return CheckInOutcome(ScanResult.ADMITTED, ticket)

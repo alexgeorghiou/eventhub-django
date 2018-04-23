@@ -1,0 +1,11 @@
+Hi {{ ticket.attendee_name }},
+
+A quick reminder that {{ event.title }} starts on {{ event.starts_at|date:"D j M Y" }} at {{ event.starts_at|date:"H:i" }}.
+
+Venue: {{ event.venue }}, {{ event.city }}
+Ticket: {{ ticket.tier.name }} ({{ ticket.short_code }})
+
+Have your QR code ready at the door:
+{{ order_url }}
+
+See you soon!

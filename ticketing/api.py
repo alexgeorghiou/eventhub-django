@@ -132,7 +132,7 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Retrie
             )
         except TicketingError as exc:
             raise_api_error(exc)
-        order = self.get_queryset().model.objects.get(pk=order.pk)
+        order = Order.objects.prefetch_related("tickets__tier").get(pk=order.pk)
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"])

@@ -1,0 +1,13 @@
+.hero {
+  background: linear-gradient(135deg, #1f2a44 0%, #3b5bdb 100%);
+  color: #fff;
+  border-radius: 1rem;
+}
+.event-card { transition: transform .15s ease, box-shadow .15s ease; }
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.08); }
+.track-pill { display: inline-block; width: .75rem; height: .75rem; border-radius: 50%; }
+.session-row { border-left: 4px solid var(--track-color, #dee2e6); }
+.ticket-card { border-style: dashed !important; }
+.ticket-qr { width: 180px; height: 180px; image-rendering: pixelated; }
+.scan-result { font-size: 1.5rem; }
+#scanner-video { width: 100%; max-width: 420px; border-radius: .5rem; background: #000; }

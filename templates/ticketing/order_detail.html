@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Your tickets &middot; {{ event.title }}{% endblock %}
+{% block content %}
+<h1 class="h3">Your tickets for {{ event.title }}</h1>
+<p class="text-muted">
+  Order {{ order.reference }} &middot; {{ order.quantity }} &times; {{ order.tier.name }}
+  &middot; {{ order.total }} {{ order.currency }}
+  {% if order.promo_code %}<span class="badge text-bg-success">{{ order.promo_code.code }}</span>{% endif %}
+  {% if order.status == "cancelled" %}<span class="badge text-bg-danger">Cancelled</span>{% endif %}
+</p>
+<div class="row g-4">
+  {% for item in tickets %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card ticket-card border-2 h-100 text-center">
+      <div class="card-body">
+        <img class="ticket-qr mb-2" src="{{ item.qr }}" alt="QR code for ticket {{ item.ticket.short_code }}">
+        <h2 class="h6 mb-0">{{ item.ticket.attendee_name }}</h2>
+        <p class="small text-muted mb-2">{{ item.ticket.tier.name }} &middot; {{ item.ticket.short_code }}</p>
+        {% if item.ticket.is_checked_in %}
+          <span class="badge text-bg-secondary">Checked in {{ item.ticket.checked_in_at|date:"j M H:i" }}</span>
+        {% elif item.ticket.status == "cancelled" %}
+          <span class="badge text-bg-danger">Cancelled</span>
+        {% else %}
+          <a class="small" href="{% url 'ticketing:ticket-qr' item.token %}" download="ticket-{{ item.ticket.short_code }}.png">Download PNG</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<p class="mt-4 small text-muted">Show the QR code at the entrance. Each code can be used once.</p>
+{% endblock %}

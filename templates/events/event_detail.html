@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} &middot; EventHub{% endblock %}
+{% block content %}
+<section class="hero p-5 mb-4">
+  <p class="text-uppercase small mb-1 opacity-75">{{ event.starts_at|date:"D j M Y" }} &ndash; {{ event.ends_at|date:"D j M Y" }}</p>
+  <h1 class="display-6 fw-bold">{{ event.title }}</h1>
+  <p class="lead">{{ event.tagline }}</p>
+  <p class="mb-0">{{ event.venue }}, {{ event.city }}</p>
+  {% if not event.has_ended %}
+    <a class="btn btn-light btn-lg mt-3" href="{% url 'ticketing:register' event.slug %}">Get tickets</a>
+  {% endif %}
+</section>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    {% if event.description %}<div class="mb-4">{{ event.description|linebreaks }}</div>{% endif %}
+
+    <h2 class="h4 mb-3">Schedule</h2>
+    {% if event.tracks.all %}
+      <p class="small">
+        {% for track in event.tracks.all %}
+          <span class="me-3"><span class="track-pill" style="background: {{ track.color }}"></span> {{ track.name }}</span>
+        {% endfor %}
+      </p>
+    {% endif %}
+    {% for day, sessions in schedule %}
+      <h3 class="h6 text-uppercase text-muted mt-4">{{ day|date:"l j F" }}</h3>
+      <div class="list-group">
+        {% for session in sessions %}
+        <div class="list-group-item session-row" style="--track-color: {{ session.track.color|default:'#dee2e6' }}">
+          <div class="d-flex justify-content-between">
+            <strong>{{ session.title }}</strong>
+            <span class="text-muted small">{{ session.starts_at|time:"H:i" }}&ndash;{{ session.ends_at|time:"H:i" }}</span>
+          </div>
+          <div class="small text-muted">
+            {{ session.get_format_display }}{% if session.level %} &middot; {{ session.get_level_display }}{% endif %}{% if session.room %} &middot; {{ session.room }}{% endif %}
+          </div>
+          {% if session.speakers.all %}
+          <div class="small mt-1">
+            {% for speaker in session.speakers.all %}<a href="{% url 'events:speaker' speaker.slug %}">{{ speaker.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    {% empty %}
+      <p class="text-muted">The programme will be announced soon.</p>
+    {% endfor %}
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-header fw-semibold">Tickets</div>
+      <ul class="list-group list-group-flush">
+        {% for tier in tiers %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div>{{ tier.name }}</div>
+            <div class="small text-muted">{{ tier.description }}</div>
+          </div>
+          <div class="text-end">
+            <div class="fw-semibold">{{ tier.price }} {{ tier.currency }}</div>
+            {% if tier.is_sold_out %}<span class="badge text-bg-secondary">Sold out</span>
+            {% elif tier.remaining <= 10 %}<span class="badge text-bg-warning">{{ tier.remaining }} left</span>{% endif %}
+          </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">Tickets are not on sale yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {% if speakers %}
+    <h2 class="h5">Speakers</h2>
+    <ul class="list-unstyled">
+      {% for speaker in speakers %}
+      <li class="mb-2"><a href="{% url 'events:speaker' speaker.slug %}">{{ speaker.name }}</a>
+        <div class="small text-muted">{{ speaker.headline }}</div></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

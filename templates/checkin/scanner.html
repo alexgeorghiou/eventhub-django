@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Check-in &middot; {{ event.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">Door check-in &middot; {{ event.title }}</h1>
+  <span id="stats" class="badge text-bg-dark fs-6"></span>
+</div>
+<div class="row g-4">
+  <div class="col-lg-6">
+    <video id="scanner-video" class="d-none mb-3" playsinline muted></video>
+    <p id="camera-hint" class="small text-muted">Camera scanning needs a browser with the BarcodeDetector API. You can always paste or type a code below.</p>
+    <form method="post" id="scan-form" class="input-group">
+      {% csrf_token %}
+      <input class="form-control" name="token" id="token" placeholder="Scanned ticket code" autocomplete="off" autofocus>
+      <button class="btn btn-primary" type="submit">Check in</button>
+    </form>
+    <div id="result" class="mt-3">
+      {% if outcome %}
+        <div class="alert scan-result {% if outcome.admitted %}alert-success{% else %}alert-danger{% endif %}">
+          {{ outcome.result.label }}{% if outcome.ticket %}: {{ outcome.ticket.attendee_name }} ({{ outcome.ticket.tier.name }}){% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <h2 class="h6 text-uppercase text-muted">Recent scans</h2>
+    <ul class="list-group" id="recent">
+      {% for scan in recent %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>{{ scan.ticket.attendee_name|default:"Unknown ticket" }}</span>
+          <span class="small text-muted">{{ scan.get_result_display }} &middot; {{ scan.scanned_at|time:"H:i:s" }}</span>
+        </li>
+      {% empty %}<li class="list-group-item text-muted">No scans yet.</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+  const checkinUrl = "{% url 'api:checkin' event.slug %}";
+  const statsUrl = "{% url 'api:event-stats' event.slug %}";
+  const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
+  const form = document.getElementById("scan-form");
+  const input = document.getElementById("token");
+  const result = document.getElementById("result");
+  const stats = document.getElementById("stats");
+  let busy = false, lastToken = "", lastAt = 0;
+
+  async function refreshStats() {
+    const r = await fetch(statsUrl, {credentials: "same-origin"});
+    if (r.ok) { const s = await r.json(); stats.textContent = `${s.checked_in} / ${s.sold} checked in`; }
+  }
+
+  async function submit(token) {
+    if (busy || !token) return;
+    busy = true;
+    try {
+      const r = await fetch(checkinUrl, {
+        method: "POST", credentials: "same-origin",
+        headers: {"Content-Type": "application/json", "X-CSRFToken": csrf},
+        body: JSON.stringify({token}),
+      });
+      const body = await r.json();
+      const who = body.ticket ? `: ${body.ticket.attendee_name} (${body.ticket.tier})` : "";
+      const div = document.createElement("div");
+      div.className = `alert scan-result ${body.admitted ? "alert-success" : "alert-danger"}`;
+      div.textContent = body.message + who;
+      result.replaceChildren(div);
+      refreshStats();
+    } finally {
+      busy = false; input.value = ""; input.focus();
+    }
+  }
+
+  form.addEventListener("submit", (e) => { e.preventDefault(); submit(input.value.trim()); });
+
+  async function startCamera() {
+    if (!("BarcodeDetector" in window) || !navigator.mediaDevices) return;
+    const detector = new BarcodeDetector({formats: ["qr_code"]});
+    const video = document.getElementById("scanner-video");
+    try {
+      video.srcObject = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}});
+    } catch { return; }
+    await video.play();
+    video.classList.remove("d-none");
+    document.getElementById("camera-hint").classList.add("d-none");
+    const tick = async () => {
+      try {
+        const codes = await detector.detect(video);
+        const now = Date.now();
+        if (codes.length && (codes[0].rawValue !== lastToken || now - lastAt > 3000)) {
+          lastToken = codes[0].rawValue; lastAt = now;
+          await submit(lastToken);
+        }
+      } catch {}
+      requestAnimationFrame(tick);
+    };
+    tick();
+  }
+
+  refreshStats();
+  startCamera();
+})();
+</script>
+{% endblock %}

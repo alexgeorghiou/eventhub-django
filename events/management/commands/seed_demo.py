@@ -20,7 +20,7 @@ SPEAKERS = [
 
 PROGRAMME = [
     # (day, start, minutes, title, format, track, speaker index)
-    (0, time(9, 0), 45, "Opening keynote: Boring technology, exciting products", "keynote", None, 4),
+    (0, time(9, 0), 45, "Keynote: Boring technology, exciting products", "keynote", None, 4),
     (0, time(10, 0), 40, "Row locks, queues and the last seat in the house", "talk", 0, 3),
     (0, time(10, 0), 40, "Server-rendered UIs in 2026", "talk", 1, 2),
     (0, time(11, 0), 90, "Workshop: Celery beyond the tutorial", "workshop", 0, 1),
@@ -87,7 +87,11 @@ class Command(BaseCommand):
             event=event, name="Standard", price=Decimal("129.00"), capacity=300, position=1
         )
         TicketTier.objects.create(
-            event=event, name="Student", price=Decimal("29.00"), capacity=40, position=2,
+            event=event,
+            name="Student",
+            price=Decimal("29.00"),
+            capacity=40,
+            position=2,
             description="Valid student ID required at the door",
         )
         promo = PromoCode.objects.create(

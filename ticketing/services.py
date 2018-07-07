@@ -198,9 +198,7 @@ def cancel_order(order: Order) -> Order:
         quantity_sold=F("quantity_sold") - order.quantity
     )
     if order.promo_code_id:
-        PromoCode.objects.filter(pk=order.promo_code_id).update(
-            times_used=F("times_used") - 1
-        )
+        PromoCode.objects.filter(pk=order.promo_code_id).update(times_used=F("times_used") - 1)
     order.tickets.update(status=Ticket.Status.CANCELLED)
     order.status = Order.Status.CANCELLED
     order.cancelled_at = timezone.now()

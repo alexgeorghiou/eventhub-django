@@ -10,8 +10,16 @@ from .services import cancel_order
 
 @admin.register(TicketTier)
 class TicketTierAdmin(admin.ModelAdmin):
-    list_display = ("name", "event", "price", "currency", "capacity", "quantity_sold",
-                    "remaining", "is_active")
+    list_display = (
+        "name",
+        "event",
+        "price",
+        "currency",
+        "capacity",
+        "quantity_sold",
+        "remaining",
+        "is_active",
+    )
     list_filter = ("event", "is_active")
     readonly_fields = ("quantity_sold",)
     list_select_related = ("event",)
@@ -19,8 +27,16 @@ class TicketTierAdmin(admin.ModelAdmin):
 
 @admin.register(PromoCode)
 class PromoCodeAdmin(admin.ModelAdmin):
-    list_display = ("code", "event", "discount_type", "amount", "times_used", "max_uses",
-                    "valid_until", "is_active")
+    list_display = (
+        "code",
+        "event",
+        "discount_type",
+        "amount",
+        "times_used",
+        "max_uses",
+        "valid_until",
+        "is_active",
+    )
     list_filter = ("event", "discount_type", "is_active")
     search_fields = ("code",)
     readonly_fields = ("times_used",)
@@ -37,17 +53,39 @@ class TicketInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("reference", "event", "buyer_name", "buyer_email", "tier", "quantity",
-                    "total", "status", "created_at")
+    list_display = (
+        "reference",
+        "event",
+        "buyer_name",
+        "buyer_email",
+        "tier",
+        "quantity",
+        "total",
+        "status",
+        "created_at",
+    )
     list_filter = ("status", "event", "tier")
     search_fields = ("reference", "buyer_name", "buyer_email", "tickets__attendee_email")
     date_hierarchy = "created_at"
     list_select_related = ("event", "tier")
     inlines = [TicketInline]
     actions = ["cancel_orders"]
-    readonly_fields = ("reference", "event", "tier", "promo_code", "user", "quantity",
-                       "unit_price", "discount_total", "total", "currency", "status",
-                       "created_at", "cancelled_at", "confirmation_sent_at")
+    readonly_fields = (
+        "reference",
+        "event",
+        "tier",
+        "promo_code",
+        "user",
+        "quantity",
+        "unit_price",
+        "discount_total",
+        "total",
+        "currency",
+        "status",
+        "created_at",
+        "cancelled_at",
+        "confirmation_sent_at",
+    )
 
     def has_add_permission(self, request) -> bool:
         # Orders are created through the purchase flow so capacity is enforced.
@@ -83,13 +121,25 @@ class CheckedInFilter(admin.SimpleListFilter):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ("short_code", "attendee_name", "attendee_email", "tier", "status",
-                    "checked_in_at")
+    list_display = (
+        "short_code",
+        "attendee_name",
+        "attendee_email",
+        "tier",
+        "status",
+        "checked_in_at",
+    )
     list_filter = ("status", CheckedInFilter, "tier__event", "tier")
     search_fields = ("attendee_name", "attendee_email", "order__reference")
     list_select_related = ("tier", "tier__event")
-    readonly_fields = ("code", "order", "tier", "checked_in_at", "checked_in_by",
-                       "reminder_sent_at")
+    readonly_fields = (
+        "code",
+        "order",
+        "tier",
+        "checked_in_at",
+        "checked_in_by",
+        "reminder_sent_at",
+    )
     actions = ["export_csv"]
 
     @admin.action(description="Export attendees as CSV")
@@ -97,10 +147,20 @@ class TicketAdmin(admin.ModelAdmin):
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="attendees.csv"'
         writer = csv.writer(response)
-        writer.writerow(["event", "tier", "ticket", "name", "email", "order", "status",
-                         "checked_in_at"])
+        writer.writerow(
+            ["event", "tier", "ticket", "name", "email", "order", "status", "checked_in_at"]
+        )
         for t in queryset.select_related("tier__event", "order"):
-            writer.writerow([t.tier.event.title, t.tier.name, t.short_code, t.attendee_name,
-                             t.attendee_email, t.order.reference, t.status,
-                             t.checked_in_at.isoformat() if t.checked_in_at else ""])
+            writer.writerow(
+                [
+                    t.tier.event.title,
+                    t.tier.name,
+                    t.short_code,
+                    t.attendee_name,
+                    t.attendee_email,
+                    t.order.reference,
+                    t.status,
+                    t.checked_in_at.isoformat() if t.checked_in_at else "",
+                ]
+            )
         return response

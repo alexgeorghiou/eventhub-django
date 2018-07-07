@@ -20,5 +20,6 @@ def scanner(request, slug: str):
     if request.method == "POST":
         outcome = check_in(request.POST.get("token", ""), event, scanned_by=request.user)
     recent = ScanLog.objects.filter(event=event).select_related("ticket")[:10]
-    return render(request, "checkin/scanner.html",
-                  {"event": event, "outcome": outcome, "recent": recent})
+    return render(
+        request, "checkin/scanner.html", {"event": event, "outcome": outcome, "recent": recent}
+    )

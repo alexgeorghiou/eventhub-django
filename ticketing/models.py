@@ -78,7 +78,9 @@ class PromoCode(models.Model):
         max_digits=8, decimal_places=2, validators=[MinValueValidator(ZERO)]
     )
     max_uses = models.PositiveIntegerField(
-        null=True, blank=True, help_text="Number of orders that may use this code; blank = unlimited"
+        null=True,
+        blank=True,
+        help_text="Number of orders that may use this code; blank = unlimited",
     )
     times_used = models.PositiveIntegerField(default=0, editable=False)
     valid_from = models.DateTimeField(null=True, blank=True)

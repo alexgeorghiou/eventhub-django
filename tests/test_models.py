@@ -34,9 +34,12 @@ def test_published_upcoming_queryset(make_event):
 
 
 def test_session_must_fit_inside_event(event):
-    session = Session(event=event, title="Too early",
-                      starts_at=event.starts_at - timedelta(hours=2),
-                      ends_at=event.starts_at - timedelta(hours=1))
+    session = Session(
+        event=event,
+        title="Too early",
+        starts_at=event.starts_at - timedelta(hours=2),
+        ends_at=event.starts_at - timedelta(hours=1),
+    )
     with pytest.raises(ValidationError) as exc:
         session.full_clean()
     assert "starts_at" in exc.value.message_dict
@@ -44,8 +47,13 @@ def test_session_must_fit_inside_event(event):
 
 def test_session_track_must_belong_to_event(event, make_event):
     other_track = Track.objects.create(event=make_event(title="Other"), name="Elsewhere")
-    session = Session(event=event, track=other_track, title="Mismatch",
-                      starts_at=event.starts_at, ends_at=event.starts_at + timedelta(hours=1))
+    session = Session(
+        event=event,
+        track=other_track,
+        title="Mismatch",
+        starts_at=event.starts_at,
+        ends_at=event.starts_at + timedelta(hours=1),
+    )
     with pytest.raises(ValidationError) as exc:
         session.full_clean()
     assert "track" in exc.value.message_dict
@@ -53,9 +61,13 @@ def test_session_track_must_belong_to_event(event, make_event):
 
 def test_room_double_booking_is_rejected(programme):
     existing = programme["session"]
-    clash = Session(event=existing.event, title="Clash", room="room 1",
-                    starts_at=existing.starts_at + timedelta(minutes=30),
-                    ends_at=existing.ends_at + timedelta(minutes=30))
+    clash = Session(
+        event=existing.event,
+        title="Clash",
+        room="room 1",
+        starts_at=existing.starts_at + timedelta(minutes=30),
+        ends_at=existing.ends_at + timedelta(minutes=30),
+    )
     with pytest.raises(ValidationError) as exc:
         clash.full_clean()
     assert "room" in exc.value.message_dict

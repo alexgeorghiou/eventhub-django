@@ -25,8 +25,19 @@ class SessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Session
-        fields = ["id", "title", "abstract", "format", "level", "room", "starts_at", "ends_at",
-                  "duration_minutes", "track", "speakers"]
+        fields = [
+            "id",
+            "title",
+            "abstract",
+            "format",
+            "level",
+            "room",
+            "starts_at",
+            "ends_at",
+            "duration_minutes",
+            "track",
+            "speakers",
+        ]
 
 
 class TierSerializer(serializers.ModelSerializer):
@@ -35,8 +46,18 @@ class TierSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TicketTier
-        fields = ["id", "name", "description", "price", "currency", "capacity", "remaining",
-                  "sales_start", "sales_end", "on_sale"]
+        fields = [
+            "id",
+            "name",
+            "description",
+            "price",
+            "currency",
+            "capacity",
+            "remaining",
+            "sales_start",
+            "sales_end",
+            "on_sale",
+        ]
 
     def get_on_sale(self, tier: TicketTier) -> bool:
         return tier.is_on_sale() and not tier.is_sold_out

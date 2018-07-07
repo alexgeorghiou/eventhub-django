@@ -30,12 +30,16 @@ def _race(n_threads: int, **purchase_kwargs) -> tuple[int, int]:
     def worker(i: int) -> None:
         try:
             barrier.wait()
-            purchase_tickets(quantity=1, buyer_name=f"Buyer {i}",
-                             buyer_email=f"buyer{i}@example.com", **purchase_kwargs)
+            purchase_tickets(
+                quantity=1,
+                buyer_name=f"Buyer {i}",
+                buyer_email=f"buyer{i}@example.com",
+                **purchase_kwargs,
+            )
             outcome = "ok"
         except InsufficientCapacity:
             outcome = "sold_out"
-        except Exception as exc:  # noqa: BLE001 - surfaced through the assertion below
+        except Exception as exc:  # surfaced by the assertion below
             outcome = repr(exc)
         finally:
             connections.close_all()
@@ -65,10 +69,16 @@ def test_concurrent_promo_redemptions_respect_max_uses(event):
     big = TicketTier.objects.create(event=event, name="Big", price=Decimal("10"), capacity=100)
     promo = PromoCode.objects.create(event=event, code="ONCE", amount=Decimal("50"), max_uses=3)
     rejected: list[str] = []
+
     def worker(i: int) -> None:
         try:
-            purchase_tickets(tier_id=big.pk, quantity=1, buyer_name="B",
-                             buyer_email=f"p{i}@example.com", promo_code="ONCE")
+            purchase_tickets(
+                tier_id=big.pk,
+                quantity=1,
+                buyer_name="B",
+                buyer_email=f"p{i}@example.com",
+                promo_code="ONCE",
+            )
         except InvalidPromoCode:
             rejected.append("used_up")
         finally:

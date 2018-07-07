@@ -40,8 +40,16 @@ def test_register_flow(client, event, tier, django_capture_on_commit_callbacks):
     url = reverse("ticketing:register", args=[event.slug])
     assert client.get(url).status_code == 200
     with django_capture_on_commit_callbacks(execute=True):
-        response = client.post(url, {"tier": tier.pk, "quantity": 2, "buyer_name": "Barbara",
-                                     "buyer_email": "barbara@example.com"}, follow=True)
+        response = client.post(
+            url,
+            {
+                "tier": tier.pk,
+                "quantity": 2,
+                "buyer_name": "Barbara",
+                "buyer_email": "barbara@example.com",
+            },
+            follow=True,
+        )
     assert response.status_code == 200
     order = Order.objects.get()
     assert order.quantity == 2
@@ -52,17 +60,25 @@ def test_register_flow(client, event, tier, django_capture_on_commit_callbacks):
 
 def test_register_shows_capacity_error(client, event, tier, buy):
     buy(5)
-    response = client.post(reverse("ticketing:register", args=[event.slug]),
-                           {"tier": tier.pk, "quantity": 1, "buyer_name": "Late",
-                            "buyer_email": "late@example.com"})
+    response = client.post(
+        reverse("ticketing:register", args=[event.slug]),
+        {"tier": tier.pk, "quantity": 1, "buyer_name": "Late", "buyer_email": "late@example.com"},
+    )
     assert response.status_code == 200
     assert b"sold out" in response.content
 
 
 def test_register_shows_promo_error_on_field(client, event, tier):
-    response = client.post(reverse("ticketing:register", args=[event.slug]),
-                           {"tier": tier.pk, "quantity": 1, "buyer_name": "X",
-                            "buyer_email": "x@example.com", "promo_code": "NOPE"})
+    response = client.post(
+        reverse("ticketing:register", args=[event.slug]),
+        {
+            "tier": tier.pk,
+            "quantity": 1,
+            "buyer_name": "X",
+            "buyer_email": "x@example.com",
+            "promo_code": "NOPE",
+        },
+    )
     assert response.context["form"].errors["promo_code"] == ["Unknown promo code."]
 
 

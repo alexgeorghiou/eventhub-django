@@ -16,16 +16,32 @@ class TrackInline(admin.TabularInline):
 class TicketTierInline(admin.TabularInline):
     model = TicketTier
     extra = 0
-    fields = ("name", "price", "currency", "capacity", "quantity_sold", "sales_start",
-              "sales_end", "is_active", "position")
+    fields = (
+        "name",
+        "price",
+        "currency",
+        "capacity",
+        "quantity_sold",
+        "sales_start",
+        "sales_end",
+        "is_active",
+        "position",
+    )
     readonly_fields = ("quantity_sold",)
 
 
 class PromoCodeInline(admin.TabularInline):
     model = PromoCode
     extra = 0
-    fields = ("code", "discount_type", "amount", "max_uses", "times_used", "valid_until",
-              "is_active")
+    fields = (
+        "code",
+        "discount_type",
+        "amount",
+        "max_uses",
+        "times_used",
+        "valid_until",
+        "is_active",
+    )
     readonly_fields = ("times_used",)
 
 
@@ -58,7 +74,9 @@ class EventAdmin(admin.ModelAdmin):
             '<div style="width:120px;background:#e9ecef;border-radius:4px">'
             '<div style="width:{}%;background:#198754;color:#fff;font-size:11px;'
             'padding:0 4px;border-radius:4px;white-space:nowrap">{} / {}</div></div>',
-            pct, sold, capacity,
+            pct,
+            sold,
+            capacity,
         )
 
     @admin.display(description="Door")

@@ -72,22 +72,25 @@ def test_purchase_sold_out_returns_409(api_client, tier, buy):
 
 
 def test_purchase_with_bad_promo_returns_400(api_client, tier):
-    response = api_client.post("/api/orders/", _order_payload(tier, promo_code="BOGUS"),
-                               format="json")
+    response = api_client.post(
+        "/api/orders/", _order_payload(tier, promo_code="BOGUS"), format="json"
+    )
     assert response.status_code == 400
     assert response.json()["code"] == "invalid_promo_code"
 
 
 def test_purchase_validation_errors(api_client, tier):
-    response = api_client.post("/api/orders/", _order_payload(tier, quantity=50,
-                                                               buyer_email="nope"), format="json")
+    response = api_client.post(
+        "/api/orders/", _order_payload(tier, quantity=50, buyer_email="nope"), format="json"
+    )
     assert response.status_code == 400
     assert set(response.json()) == {"quantity", "buyer_email"}
 
 
 def test_quote(api_client, tier, promo):
-    response = api_client.post("/api/quote/", {"tier": tier.pk, "quantity": 2,
-                                               "promo_code": "save25"}, format="json")
+    response = api_client.post(
+        "/api/quote/", {"tier": tier.pk, "quantity": 2, "promo_code": "save25"}, format="json"
+    )
     assert response.status_code == 200
     assert response.json()["total"] == "150.00"
     assert response.json()["remaining"] == 5
@@ -133,8 +136,11 @@ def test_event_stats(staff_api, buy, event, make_tier):
     vip = make_tier(name="VIP", capacity=2)
     order = buy(3)
     buy(1, target=vip)
-    staff_api.post(f"/api/events/{event.slug}/checkin/",
-                   {"token": make_ticket_token(order.tickets.first())}, format="json")
+    staff_api.post(
+        f"/api/events/{event.slug}/checkin/",
+        {"token": make_ticket_token(order.tickets.first())},
+        format="json",
+    )
     stats = staff_api.get(f"/api/events/{event.slug}/stats/").json()
     assert stats["sold"] == 4
     assert stats["checked_in"] == 1

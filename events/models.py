@@ -47,6 +47,9 @@ class Event(models.Model):
             self.slug = self._unique_slug()
         super().save(*args, **kwargs)
 
+    def get_absolute_url(self) -> str:
+        return reverse("events:detail", kwargs={"slug": self.slug})
+
     def _unique_slug(self) -> str:
         base = slugify(self.title)[:200] or "event"
         candidate, n = base, 2
@@ -58,9 +61,6 @@ class Event(models.Model):
     def clean(self) -> None:
         if self.starts_at and self.ends_at and self.ends_at <= self.starts_at:
             raise ValidationError({"ends_at": "An event must end after it starts."})
-
-    def get_absolute_url(self) -> str:
-        return reverse("events:detail", kwargs={"slug": self.slug})
 
     @property
     def has_ended(self) -> bool:

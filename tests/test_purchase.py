@@ -125,8 +125,9 @@ def test_expired_promo(buy, promo):
 
 def test_fixed_promo_on_free_tier_never_goes_negative(buy, event, make_tier):
     free = make_tier(name="Community", price=Decimal("0.00"))
-    PromoCode.objects.create(event=event, code="TENOFF", discount_type="fixed",
-                             amount=Decimal("10"))
+    PromoCode.objects.create(
+        event=event, code="TENOFF", discount_type="fixed", amount=Decimal("10")
+    )
     order = buy(1, target=free, promo_code="TENOFF")
     assert order.total == Decimal("0.00")
 

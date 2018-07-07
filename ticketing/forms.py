@@ -5,8 +5,9 @@ from .models import TicketTier
 
 
 class PurchaseForm(forms.Form):
-    tier = forms.ModelChoiceField(queryset=TicketTier.objects.none(), empty_label=None,
-                                  widget=forms.RadioSelect)
+    tier = forms.ModelChoiceField(
+        queryset=TicketTier.objects.none(), empty_label=None, widget=forms.RadioSelect
+    )
     quantity = forms.IntegerField(min_value=1, initial=1)
     buyer_name = forms.CharField(label="Your name", max_length=150)
     buyer_email = forms.EmailField(label="Email")

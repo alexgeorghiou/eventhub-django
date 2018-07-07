@@ -26,8 +26,9 @@ def register(request, slug: str):
         messages.info(request, "This event has already taken place.")
         return redirect(event)
 
-    form = PurchaseForm(request.POST or None, event=event,
-                        initial={"tier": request.GET.get("tier")})
+    form = PurchaseForm(
+        request.POST or None, event=event, initial={"tier": request.GET.get("tier")}
+    )
     if request.method == "POST" and form.is_valid():
         data = form.cleaned_data
         try:
@@ -60,10 +61,14 @@ def order_detail(request, token: str):
     tickets = []
     for ticket in order.tickets.select_related("tier"):
         ticket_token = make_ticket_token(ticket)
-        tickets.append({"ticket": ticket, "token": ticket_token,
-                        "qr": qr_svg_data_uri(ticket_token)})
-    return render(request, "ticketing/order_detail.html",
-                  {"order": order, "event": order.event, "tickets": tickets})
+        tickets.append(
+            {"ticket": ticket, "token": ticket_token, "qr": qr_svg_data_uri(ticket_token)}
+        )
+    return render(
+        request,
+        "ticketing/order_detail.html",
+        {"order": order, "event": order.event, "tickets": tickets},
+    )
 
 
 @require_GET

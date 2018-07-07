@@ -26,10 +26,18 @@ def _send(subject: str, to: str, template: str, context: dict) -> None:
 
 
 def send_confirmation_email(order: Order) -> None:
-    context = {"order": order, "event": order.event, "tickets": list(order.tickets.all()),
-               "order_url": order_url(order)}
-    _send(f"Your tickets for {order.event.title} ({order.reference})", order.buyer_email,
-          "order_confirmation", context)
+    context = {
+        "order": order,
+        "event": order.event,
+        "tickets": list(order.tickets.all()),
+        "order_url": order_url(order),
+    }
+    _send(
+        f"Your tickets for {order.event.title} ({order.reference})",
+        order.buyer_email,
+        "order_confirmation",
+        context,
+    )
 
 
 def send_reminder_email(ticket: Ticket) -> None:

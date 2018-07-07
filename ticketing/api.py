@@ -63,8 +63,16 @@ class TicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ticket
-        fields = ["code", "short_code", "tier", "attendee_name", "attendee_email", "status",
-                  "checked_in_at", "qr_token"]
+        fields = [
+            "code",
+            "short_code",
+            "tier",
+            "attendee_name",
+            "attendee_email",
+            "status",
+            "checked_in_at",
+            "qr_token",
+        ]
 
     def get_qr_token(self, ticket: Ticket) -> str:
         return make_ticket_token(ticket)
@@ -79,9 +87,23 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["reference", "event", "tier", "quantity", "unit_price", "discount_total",
-                  "total", "currency", "promo_code", "buyer_name", "buyer_email", "status",
-                  "created_at", "tickets", "tickets_url"]
+        fields = [
+            "reference",
+            "event",
+            "tier",
+            "quantity",
+            "unit_price",
+            "discount_total",
+            "total",
+            "currency",
+            "promo_code",
+            "buyer_name",
+            "buyer_email",
+            "status",
+            "created_at",
+            "tickets",
+            "tickets_url",
+        ]
 
     def get_tickets_url(self, order: Order) -> str:
         return order_url(order)
@@ -92,8 +114,12 @@ class PurchaseThrottle(AnonRateThrottle):
     rate = "20/minute"
 
 
-class OrderViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
-                   viewsets.GenericViewSet):
+class OrderViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     """Create orders anonymously; list/retrieve your own (staff see all)."""
 
     lookup_field = "reference"
@@ -161,13 +187,15 @@ class QuoteView(APIView):
             q = services.quote(tier, quantity, promo)
         except TicketingError as exc:
             raise_api_error(exc)
-        return Response({
-            "tier": tier.pk,
-            "quantity": q.quantity,
-            "unit_price": str(q.unit_price),
-            "subtotal": str(q.subtotal),
-            "discount_total": str(q.discount_total),
-            "total": str(q.total),
-            "currency": q.currency,
-            "remaining": tier.remaining,
-        })
+        return Response(
+            {
+                "tier": tier.pk,
+                "quantity": q.quantity,
+                "unit_price": str(q.unit_price),
+                "subtotal": str(q.subtotal),
+                "discount_total": str(q.discount_total),
+                "total": str(q.total),
+                "currency": q.currency,
+                "remaining": tier.remaining,
+            }
+        )

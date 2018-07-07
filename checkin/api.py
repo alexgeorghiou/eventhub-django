@@ -24,12 +24,19 @@ class CheckInView(APIView):
         payload = ScanSerializer(data=request.data)
         payload.is_valid(raise_exception=True)
         outcome = check_in(payload.validated_data["token"], event, scanned_by=request.user)
-        body = {"result": outcome.result.value, "admitted": outcome.admitted,
-                "message": outcome.result.label}
+        body = {
+            "result": outcome.result.value,
+            "admitted": outcome.admitted,
+            "message": outcome.result.label,
+        }
         if outcome.ticket is not None:
             t = outcome.ticket
-            body["ticket"] = {"short_code": t.short_code, "attendee_name": t.attendee_name,
-                              "tier": t.tier.name, "checked_in_at": t.checked_in_at}
+            body["ticket"] = {
+                "short_code": t.short_code,
+                "attendee_name": t.attendee_name,
+                "tier": t.tier.name,
+                "checked_in_at": t.checked_in_at,
+            }
         return Response(body)
 
 
@@ -45,12 +52,16 @@ class EventStatsView(APIView):
             issued=Count("tickets", filter=valid),
             checked_in=Count("tickets", filter=valid & Q(tickets__checked_in_at__isnull=False)),
         )
-        rows = [{"tier": t.name, "capacity": t.capacity, "sold": t.issued,
-                 "checked_in": t.checked_in} for t in tiers]
-        return Response({
-            "event": event.slug,
-            "sold": sum(r["sold"] for r in rows),
-            "checked_in": sum(r["checked_in"] for r in rows),
-            "capacity": sum(r["capacity"] for r in rows),
-            "tiers": rows,
-        })
+        rows = [
+            {"tier": t.name, "capacity": t.capacity, "sold": t.issued, "checked_in": t.checked_in}
+            for t in tiers
+        ]
+        return Response(
+            {
+                "event": event.slug,
+                "sold": sum(r["sold"] for r in rows),
+                "checked_in": sum(r["checked_in"] for r in rows),
+                "capacity": sum(r["capacity"] for r in rows),
+                "tiers": rows,
+            }
+        )

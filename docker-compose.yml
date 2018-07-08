@@ -1,0 +1,56 @@
+x-app: &app
+  build: .
+  env_file: .env.example
+  environment:
+    DATABASE_URL: postgres://eventhub:eventhub@db:5432/eventhub
+    CELERY_BROKER_URL: redis://redis:6379/0
+    EMAIL_HOST: mailpit
+    EMAIL_PORT: "1025"
+    EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: eventhub
+      POSTGRES_USER: eventhub
+      POSTGRES_PASSWORD: eventhub
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventhub -d eventhub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+
+  mailpit:
+    image: axllent/mailpit:v1.20
+    ports:
+      - "8025:8025"
+
+  web:
+    <<: *app
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --access-logfile -"
+    ports:
+      - "8000:8000"
+
+  worker:
+    <<: *app
+    command: celery -A config worker --loglevel=info
+
+  beat:
+    <<: *app
+    command: celery -A config beat --loglevel=info --schedule /tmp/celerybeat-schedule
+
+volumes:
+  pgdata:

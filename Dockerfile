@@ -12,7 +12,9 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-RUN DJANGO_SECRET_KEY=build-only \n    STATICFILES_BACKEND=whitenoise.storage.CompressedManifestStaticFilesStorage \n    python manage.py collectstatic --noinput \
+RUN DJANGO_SECRET_KEY=build-only \
+    STATICFILES_BACKEND=whitenoise.storage.CompressedManifestStaticFilesStorage \
+    python manage.py collectstatic --noinput \
     && useradd --create-home --uid 1000 eventhub \
     && chown -R eventhub /app
 

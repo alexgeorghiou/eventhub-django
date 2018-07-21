@@ -29,3 +29,11 @@ filterwarnings = [
   "ignore::DeprecationWarning:celery.*",
   "ignore:No directory at:UserWarning",
 ]
+
+[tool.coverage.run]
+source = ["config", "events", "ticketing", "checkin"]
+omit = ["*/migrations/*", "config/asgi.py", "config/wsgi.py"]
+
+[tool.coverage.report]
+skip_covered = true
+show_missing = true
